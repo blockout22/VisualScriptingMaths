@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Plugin-Class: VisualScriptingMaths
+Plugin-Id: VSMaths
+Plugin-Version: 0.0.1
