@@ -1,12 +1,13 @@
 package nodes;
 
 import imgui.type.ImFloat;
-import imgui.type.ImInt;
 import imgui.type.ImString;
 import visual.scripting.Graph;
 import visual.scripting.NodeData;
-import visual.scripting.Pin;
 import visual.scripting.node.Node;
+import visual.scripting.pin.Pin;
+import visual.scripting.pin.PinFloat;
+import visual.scripting.pin.PinFlow;
 
 public class PrintString extends Node {
 
@@ -15,21 +16,34 @@ public class PrintString extends Node {
 
     public PrintString(Graph graph) {
         super(graph);
+        setCategory("Maths");
         setName("PrintString");
     }
 
     @Override
     public void init() {
-        execIn = addInputPin(Pin.DataType.Flow, this);
-        execOut = addOutputPin(Pin.DataType.Flow, this);
+        execIn = new PinFlow();
+        execIn.setNode(this);
+        addCustomInput(execIn);
 
-        pin_floatToString = addInputPin(Pin.DataType.Float, this);
+        pin_floatToString = new PinFloat();
+        pin_floatToString.setNode(this);
+        addCustomInput(pin_floatToString);
+
+        execOut = new PinFlow();
+        execOut.setNode(this);
+        addCustomOutput(execOut);
     }
 
     @Override
     public void execute() {
         if(pin_floatToString.connectedTo != -1){
             Pin pin = getGraph().findPinById(pin_floatToString.connectedTo);
+
+            NodeData<ImFloat> connectedData = pin.getData();
+            NodeData<ImFloat> inData = pin_floatToString.getData();
+
+            inData.getValue().set(connectedData.getValue().get());
         }
     }
 

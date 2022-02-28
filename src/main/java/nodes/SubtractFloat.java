@@ -3,8 +3,9 @@ package nodes;
 import imgui.type.ImFloat;
 import visual.scripting.Graph;
 import visual.scripting.NodeData;
-import visual.scripting.Pin;
 import visual.scripting.node.Node;
+import visual.scripting.pin.Pin;
+import visual.scripting.pin.PinFloat;
 
 public class SubtractFloat extends Node {
 
@@ -12,15 +13,23 @@ public class SubtractFloat extends Node {
 
     public SubtractFloat(Graph graph) {
         super(graph);
+        setCategory("Maths");
         setName("Subtract Float");
     }
 
     @Override
     public void init() {
-        inPin1 = addInputPin(Pin.DataType.Float, this);
-        inPin2 = addInputPin(Pin.DataType.Float, this);
+        inPin1 = new PinFloat();
+        inPin1.setNode(this);
+        addCustomInput(inPin1);
 
-        outPin = addOutputPin(Pin.DataType.Float, this);
+        inPin2 = new PinFloat();
+        inPin2.setNode(this);
+        addCustomInput(inPin2);
+
+        outPin = new PinFloat();
+        outPin.setNode(this);
+        addCustomOutput(outPin);
 
         String var = "SubtractFloat" + getGraph().getNextLocalVariableID();
         outPin.setVariable(var);
@@ -30,6 +39,18 @@ public class SubtractFloat extends Node {
     public void execute() {
         NodeData<ImFloat> data1 = inPin1.getData();
         NodeData<ImFloat> data2 = inPin2.getData();
+
+        if(inPin1.connectedTo != -1){
+            Pin connectedTo = getGraph().findPinById(inPin1.connectedTo);
+            NodeData<ImFloat> connectedData = connectedTo.getData();
+            data1.getValue().set(connectedData.getValue().get());
+        }
+
+        if(inPin2.connectedTo != -1){
+            Pin connectedTo = getGraph().findPinById(inPin2.connectedTo);
+            NodeData<ImFloat> connectedData = connectedTo.getData();
+            data2.getValue().set(connectedData.getValue().get());
+        }
 
         NodeData<ImFloat> outData = outPin.getData();
         outData.getValue().set(data1.getValue().get() - data2.getValue().get());
